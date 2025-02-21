@@ -1,2 +1,5 @@
-/images*
-/distros*
+/distros/*
+/images/*
+!/images/alpine/
+/images/alpine/*
+!/images/alpine/alpine.tar
