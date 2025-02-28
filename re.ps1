@@ -17,13 +17,15 @@ param(
 	[string]$p
 )
 if (-not $n) {
+    wsl --list
     $n = Read-Host "Please enter the name of the distro"
 }
 if (-not $p) {
+    Get-ChildItem -Path "./images" -Recurse -File | Select-Object FullName | Format-Table -AutoSize | Out-Host
     $p = Read-Host "Please enter the path of the image"
 }
-&{
-	wsl --unregister $n
-	wsl --import $n ./distros/$n $p
-	wsl -d $n
+& {
+wsl --unregister $n
+wsl --import $n ./distros/$n $p
+wsl -d $n
 }
