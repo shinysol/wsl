@@ -2,7 +2,7 @@
 - () ignored
 ```text
 WSL
-├─ images
+├┬─ images
 │├─ (alpine)
 │├─ (rocky-9)
 │└─ (ubuntu-22.04)
