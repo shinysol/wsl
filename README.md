@@ -19,8 +19,12 @@ WSL
 
 ### Scripts
 
-- new.ps1: launch new distro by import
-- re.ps1: unregister and launch again
+- li.ps1: list all images
+- ld.ps1: list all distros
+- new.ps1: launch new distro by import image
 - u.ps1: unregister distro
 - d.ps1: attach distro
-- port-forwarding: add new ipv4 portforwarding
+- pf.ps1: add new ipv4 portforwarding
+- pf-end.ps1: delete specific ipv4 portforwarding
+- re.ps1: unregister and launch again
+- recover.ps1: fix broken storage link(remove and launch)
