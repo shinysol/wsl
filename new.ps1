@@ -1,30 +1,31 @@
-<#
-.SYNOPSIS
-A brief description of your script.
-
-.DESCRIPTION
-A more detailed description of what your script does.
-
-.PARAMETER n
-Name of distro
-
-.PARAMETER p
-Path of image
-#>
 param(
-	[Parameter(Position=0)]
-	[string]$n,
-	[string]$p
+    [Parameter(Position=0)]
+    [string]$n,
+    [string]$p
 )
+
 if (-not $n) {
     wsl --list
-    $n = Read-Host "Please enter the name of the distro"
+    $n = Read-Host "`nPlease enter the name of the distro"
 }
+
 if (-not $p) {
-    Get-ChildItem -Path "./images" -Recurse -File | Select-Object FullName | Format-Table -AutoSize | Out-Host
-    $p = Read-Host "Please enter the path of the image"
+    $images = Get-ChildItem -Path "./images" -Recurse -File
+    if (-not $images) {
+        Write-Error "No WSL images found in ./images directory"
+        exit
+    }
+    
+    Write-Host "`nAvailable images:"
+    for ($i = 0; $i -lt $images.Count; $i++) {
+        Write-Host "$($i+1). $($images[$i].FullName)"
+    }
+    
+    $selection = Read-Host "`nEnter the number of the image to use (1-$($images.Count))"
+    $p = $images[[int]$selection - 1].FullName
 }
+
 & {
-wsl --import $n ./distros/$n $p
-wsl -d $n
+    wsl --import $n ./distros/$n $p
+    wsl -d $n
 }
