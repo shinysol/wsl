@@ -17,6 +17,7 @@ Destination Port
 .PARAMETER da
 Destination Address
 #>
+
 param(
 	[Parameter(Position=0)]
 	[string]$lp,
@@ -24,6 +25,17 @@ param(
     [string]$dp,
 	[string]$da
 )
+function Test-AdminPrivileges {
+    return ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+if (Test-AdminPrivileges) {
+    Write-Host "Running as administrator"
+} else {
+    Write-Host "Not running as administrator"
+    Start-Process pwsh -Verb RunAs -ArgumentList "./pf.ps1"
+    exit
+}
+netsh interface portproxy show all
 if (-not $lp) {
     $lp = Read-Host "Please enter the listening port"
 }
@@ -40,7 +52,10 @@ if (-not $dp) {
     }
 }
 if (-not $da) {
-    $da = Read-Host "Please enter the destination address" 
+    $da = Read-Host "Please enter the destination address(default WSL IP)" 
+    if ([string]::IsNullOrWhiteSpace($da)) {
+        $da = (wsl hostname -I).Trim().Split()[0]
+    }
 }
 
 
