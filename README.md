@@ -28,3 +28,17 @@ WSL
 - pf-end.ps1: delete specific ipv4 portforwarding
 - re.ps1: unregister and launch again
 - recover.ps1: fix broken storage link(remove and launch)
+
+### change default folder
+```PowerShell
+nodepad $profile
+# or
+code $profile
+```
+- Add to the file this block below
+```text
+$wslHome = "D:\projects\wsl"
+if (-not $env:TERM_PROGRAM -eq "vscode") {
+    Set-Location $wslHome
+}
+```
