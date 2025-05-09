@@ -7,10 +7,12 @@ WSL
 │  ├─ (alpine)
 │  ├─ (rocky-9)
 │  └─ (ubuntu-22.04)
-└─ distros
-   ├─ (ubuntu-db)
-   ├─ (alpine-service)
-   └─ (rocky-test)
+├─ distros
+│  ├─ (ubuntu-db)
+│  ├─ (alpine-service)
+│  └─ (rocky-test)
+└─ docker
+  └─ infra
 ```
 
 ### Prerequisite
@@ -42,3 +44,12 @@ if (-not $env:TERM_PROGRAM -eq "vscode") {
     Set-Location $wslHome
 }
 ```
+
+### docker compose file added
+
+in `./docker` folder
+
+- infra: some local infra setup including
+    - mariadb
+    - neo4j
+    - kafka
