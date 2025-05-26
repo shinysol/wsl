@@ -1,0 +1,104 @@
+services:
+  etcd:
+    image: registry.k8s.io/etcd:3.5.15
+    container_name: etcd
+    command: etcd --listen-client-urls=http://0.0.0.0:2379 --advertise-client-urls=http://etcd:2379 --listen-peer-urls=http://0.0.0.0:2380 --initial-advertise-peer-urls=http://etcd:2380 --initial-cluster-token=etcd-cluster-1 --initial-cluster=etcd=http://etcd:2380 --name=etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    volumes:
+      - etcd-data:/data
+    networks:
+      kube-net:
+        ipv4_address: 10.0.0.10
+    restart: unless-stopped
+
+  kube-apiserver:
+    image: registry.k8s.io/kube-apiserver:v1.29.2
+    container_name: kube-apiserver
+    command: kube-apiserver --advertise-address=10.0.0.11 --kubelet-preferred-address-types=InternalIP,Hostname --service-cluster-ip-range=10.96.0.0/12 --etcd-servers=http://etcd:2379 --authorization-mode=RBAC --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodSecurityAdmission
+    ports:
+      - "6443:6443"
+    volumes:
+      - k8s-config:/etc/kubernetes
+      - k8s-data:/var/lib/kubelet
+    networks:
+      kube-net:
+        ipv4_address: 10.0.0.11
+    depends_on:
+      - etcd
+    restart: unless-stopped
+    privileged: true
+
+  kube-scheduler:
+    image: registry.k8s.io/kube-scheduler:v1.29.2
+    container_name: kube-scheduler
+    command: kube-scheduler --kubeconfig=/etc/kubernetes/scheduler.conf --leader-elect=true
+    volumes:
+      - k8s-config:/etc/kubernetes
+    networks:
+      kube-net:
+        ipv4_address: 10.0.0.12
+    depends_on:
+      - kube-apiserver
+    restart: unless-stopped
+    privileged: true
+
+  kube-controller-manager:
+    image: registry.k8s.io/kube-controller-manager:v1.29.2
+    container_name: kube-controller-manager
+    command: kube-controller-manager --kubeconfig=/etc/kubernetes/controller-manager.conf --cluster-cidr=10.244.0.0/16 --leader-elect=true --service-cluster-ip-range=10.96.0.0/12 --allocate-node-cidrs=true
+    volumes:
+      - k8s-config:/etc/kubernetes
+      - k8s-data:/var/lib/kubelet
+    networks:
+      kube-net:
+        ipv4_address: 10.0.0.13
+    depends_on:
+      - kube-apiserver
+    restart: unless-stopped
+    privileged: true
+
+  kubelet:
+    image: registry.k8s.io/kubelet:v1.29.2
+    container_name: kubelet
+    command: kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --hostname-override=kube-master --pod-cidr=10.244.0.0/24 --node-ip=10.0.0.14 --container-runtime=docker --v=2
+    volumes:
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - k8s-data:/var/lib/kubelet:rw
+      - k8s-config:/etc/kubernetes:rw
+    networks:
+      kube-net:
+        ipv4_address: 10.0.0.14
+    depends_on:
+      - kube-apiserver
+    restart: unless-stopped
+    privileged: true
+
+  kube-proxy:
+    image: registry.k8s.io/kube-proxy:v1.29.2
+    container_name: kube-proxy
+    command: kube-proxy --kubeconfig=/etc/kubernetes/kube-proxy.conf --proxy-mode=iptables
+    volumes:
+      - k8s-config:/etc/kubernetes
+      - /lib/modules:/lib/modules:ro
+      - /usr/local/bin:/usr/local/bin:ro # May need to mount docker binary path
+    networks:
+      kube-net:
+        ipv4_address: 10.0.0.15
+    depends_on:
+      - kubelet
+    restart: unless-stopped
+    privileged: true
+
+networks:
+  kube-net:
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
+volumes:
+  etcd-data:
+  k8s-data:
+  k8s-config:
