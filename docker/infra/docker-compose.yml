@@ -50,7 +50,22 @@ services:
       - mariadb:/var/lib/mysql
       - ~/config/conf.d:/etc/mysql/conf.d
 
-  mongo:
+  postgres:
+    image: postgres:17.5-alpine3.22
+    container_name: postgresql
+    ports: 
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: always
+    networks:
+      - app-net
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    
+  mongo: 
     container_name: mongodb
     image: mongo:latest
     ports:
@@ -148,4 +163,6 @@ volumes:
   minio-data1:
     driver: local
   minio-data2:
+    driver: local
+  pgdata:
     driver: local
