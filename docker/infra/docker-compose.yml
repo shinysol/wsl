@@ -64,7 +64,20 @@ services:
       - app-net
     volumes:
       - pgdata:/var/lib/postgresql/data
-    
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__SERVICE__HTTP_PORT: 6333
+    networks:
+      - app-net
+    volumes:
+      - qdrant-data:/qdrant/storage
+
   mongo: 
     container_name: mongodb
     image: mongo:latest
@@ -165,4 +178,6 @@ volumes:
   minio-data2:
     driver: local
   pgdata:
+    driver: local
+  qdrant-data:
     driver: local
