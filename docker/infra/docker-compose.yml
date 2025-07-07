@@ -16,17 +16,7 @@ services:
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_SASL_MECHANISM_CONTROLLER_PROTOCOL: PLAIN
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
-      KAFKA_LISTENER_NAME_BROKER_PLAIN_SASL_JAAS_CONFIG: >
-        org.apache.kafka.common.security.plain.PlainLoginModule required
-        username="admin"
-        password="admin-secret"
-        user_admin="admin-secret"
-        user_kafka_client="kafka_client_123456";
-      KAFKA_LISTENER_NAME_CONTROLLER_PLAIN_SASL_JAAS_CONFIG: >
-        org.apache.kafka.common.security.plain.PlainLoginModule required
-        username="admin"
-        password="admin-secret"
-        user_admin="admin-secret";
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/custom/kafka_server_jaas.conf"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -35,6 +25,7 @@ services:
     restart: always
     volumes:
       - kafka-data:/var/lib/kafka/data
+      - ./kafka-config:/opt/kafka/config/custom
     networks:
       - app-net
 
