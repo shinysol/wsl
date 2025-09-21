@@ -141,6 +141,21 @@ services:
     networks:
       - minio-net
 
+  rabbitmq:
+    image: rabbitmq:4.1.4-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # Port for AMQP (the standard messaging protocol)
+      - "15672:15672" # Port for the Management UI
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq/
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - app-net
+
   # nginx:
   #   image: nginx:latest
   #   container_name: nginx
