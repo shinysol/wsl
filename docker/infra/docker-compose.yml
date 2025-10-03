@@ -188,6 +188,7 @@ services:
 networks:
   app-net:
     driver: bridge
+    name: app-net
   minio-net:
     driver: bridge
 
